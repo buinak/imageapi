@@ -41,8 +41,8 @@ public class ImageController {
     }
 
     @GetMapping(path = "findImageByName")
-    public ResponseEntity<ImageRepository.> findImageByName(@RequestParam String name){
-        Optional<Image> optionalImage = imageRepository.findByName(name);
+    public ResponseEntity<ImageRepository.ImageInformationView> findImageByName(@RequestParam String name){
+        Optional<ImageRepository.ImageInformationView> optionalImage = imageRepository.findByName(name);
 
         if (optionalImage.isPresent()){
             return ResponseEntity.ok().body(optionalImage.get());
