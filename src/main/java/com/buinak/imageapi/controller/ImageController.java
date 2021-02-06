@@ -7,9 +7,7 @@ import com.buinak.imageapi.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -49,5 +47,21 @@ public class ImageController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PatchMapping(path = "patchImage")
+    public ResponseEntity<ImageRepository.ImageInformationView> patchImage(@RequestBody Image image){
+        Optional<Image> optionalImage = imageRepository.findById(image.getId());
+
+        if (optionalImage.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+
+        Image managedImage = optionalImage.get();
+        managedImage.setName(image.getName());
+        managedImage.setDescription(image.getDescription());
+
+        imageRepository.saveAndFlush(managedImage);
+        return ResponseEntity.ok(imageRepository.findByName(image.getName()).orElseThrow());
     }
 }
