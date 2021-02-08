@@ -1,6 +1,8 @@
 package com.buinak.imageapi.controller;
 
 import com.buinak.imageapi.entity.Image;
+import com.buinak.imageapi.entity.ImageData;
+import com.buinak.imageapi.repository.ImageDataRepository;
 import com.buinak.imageapi.repository.ImageRepository;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +23,9 @@ public class ImageControllerIT {
 
     @Autowired
     ImageController imageController;
+
+    @Autowired
+    ImageDataRepository imageDataRepository;
     
     @Test
     public void addImage_addsAnImage(){
@@ -34,9 +39,12 @@ public class ImageControllerIT {
     @Test
     public void deleteImage(){
         Image image = imageController.addImage("NAME", "DESC").getBody();
+        ImageData imageData = image.getImageData();
 
         assertThat(imageController.findImageByName("NAME").getBody()).isNotNull();
+        assertThat(imageDataRepository.existsById(imageData.getId())).isTrue();
         imageController.deleteImage(image.getId());
         assertThat(imageController.findImageByName("NAME").getBody()).isNull();
+        assertThat(imageDataRepository.existsById(imageData.getId())).isFalse();
     }
 }

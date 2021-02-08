@@ -40,6 +40,11 @@ public class ImageController {
         }
     }
 
+    @GetMapping(path = "findFullImageById")
+    public ResponseEntity<Image> findFullImageById(@RequestParam long id){
+        return ResponseEntity.ok(imageService.findFullImageById(id));
+    }
+
     @PatchMapping(path = "patchImage")
     public ResponseEntity<ImageRepository.ImageInformationView> patchImage(@RequestBody Image image){
         Optional<ImageRepository.ImageInformationView> optionalImageInformationView = imageService.patchImage(image);

@@ -18,7 +18,7 @@ public class Image {
     private String name;
     private String description;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "imageDataId", insertable = true, updatable = false, nullable = false)
     private ImageData imageData;
 
