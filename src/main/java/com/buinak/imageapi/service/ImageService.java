@@ -62,6 +62,7 @@ public class ImageService {
         return imagePage.getContent();
     }
 
+
     public Optional<ImageRepository.ImageInformationView> patchImage(Image image) {
         Image managedImage = imageRepository.findById(image.getId()).orElseThrow(ImageApiRuntimeException::new);
 
