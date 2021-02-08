@@ -5,6 +5,7 @@ import com.buinak.imageapi.entity.ImageData;
 import com.buinak.imageapi.repository.ImageDataRepository;
 import com.buinak.imageapi.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -64,4 +65,22 @@ public class ImageController {
         imageRepository.saveAndFlush(managedImage);
         return ResponseEntity.ok(imageRepository.findByName(image.getName()).orElseThrow());
     }
+
+    @DeleteMapping(path = "deleteImage")
+    public ResponseEntity<Long> deleteImage(@RequestParam() long id){
+        Optional<Image> optionalImage = imageRepository.findById(id);
+
+        if (optionalImage.isPresent()){
+            Image managedImage = optionalImage.get();
+            ImageData imageData = managedImage.getImageData();
+            long imageDataId = imageData.getId();
+            imageRepository.deleteById(id);
+            imageDataRepository.deleteById(imageDataId);
+            return new ResponseEntity<>(id, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
 }
