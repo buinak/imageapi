@@ -41,7 +41,7 @@ public class ImageController {
         }
     }
 
-    @GetMapping(path = "findPage")  
+    @GetMapping(path = "findPage")
     public ResponseEntity<List<Image>> findImagesByPage(@RequestParam int pageNumber, @RequestParam int pageSize){
         return ResponseEntity.ok(imageService.findPage(pageNumber, pageSize));
     }
