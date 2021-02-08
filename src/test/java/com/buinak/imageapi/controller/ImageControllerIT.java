@@ -3,6 +3,7 @@ package com.buinak.imageapi.controller;
 import com.buinak.imageapi.entity.Image;
 import com.buinak.imageapi.repository.ImageRepository;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +21,9 @@ public class ImageControllerIT {
 
     @Autowired
     ImageController imageController;
+
+    @Autowired
+    ImageRepository imageRepository;
     
     @Test
     public void addImage_addsAnImage(){
@@ -28,5 +32,15 @@ public class ImageControllerIT {
         ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME").getBody();
         assertThat(imageInformationView.getName()).isEqualTo("NAME");
         assertThat(imageInformationView.getDescription()).isEqualTo("DESC");
+    }
+
+    @Test
+    public void deleteImage(){
+        Image image = imageController.addImage("NAME", "DESC").getBody();
+        long id = image.getId();
+
+        imageController.deleteImage(id);
+        assertThat(imageRepository.findById(id)).isEmpty();
+
     }
 }
