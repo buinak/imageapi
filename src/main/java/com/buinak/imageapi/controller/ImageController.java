@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller("/image")
@@ -38,6 +39,11 @@ public class ImageController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping(path = "findPage")
+    public ResponseEntity<List<Image>> findImagesByPage(@RequestParam int pageNumber, @RequestParam int pageSize){
+        return ResponseEntity.ok(imageService.findPage(pageNumber, pageSize));
     }
 
     @GetMapping(path = "findFullImageById")

@@ -7,10 +7,13 @@ import com.buinak.imageapi.repository.ImageDataRepository;
 import com.buinak.imageapi.repository.ImageRepository;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -53,6 +56,12 @@ public class ImageService {
                         .fullImage(imageData.getFullImage()).build()
                 ).build();
     }
+
+    public List<Image> findPage(int pageNumber, int pageSize){
+        Page<Image> imagePage = imageRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        return imagePage.getContent();
+    }
+
 
     public Optional<ImageRepository.ImageInformationView> patchImage(Image image) {
         Image managedImage = imageRepository.findById(image.getId()).orElseThrow(ImageApiRuntimeException::new);
