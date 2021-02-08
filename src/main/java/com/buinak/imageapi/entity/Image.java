@@ -1,5 +1,6 @@
 package com.buinak.imageapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -19,6 +20,7 @@ public class Image {
     private String description;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "imageDataId", insertable = true, updatable = false, nullable = false)
     private ImageData imageData;
 

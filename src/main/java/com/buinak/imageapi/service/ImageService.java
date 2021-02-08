@@ -5,10 +5,15 @@ import com.buinak.imageapi.entity.ImageData;
 import com.buinak.imageapi.exception.ImageApiRuntimeException;
 import com.buinak.imageapi.repository.ImageDataRepository;
 import com.buinak.imageapi.repository.ImageRepository;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,7 +28,7 @@ public class ImageService {
         this.imageDataRepository = imageDataRepository;
     }
 
-    public Image addImage(String name, String description){
+    public Image addImage(String name, String description) {
         ImageData imageData = ImageData.builder().build();
         imageDataRepository.saveAndFlush(imageData);
 
@@ -34,18 +39,32 @@ public class ImageService {
                 .build());
     }
 
-    public Optional<ImageRepository.ImageInformationView> findImageByName(String name){
+    public Optional<ImageRepository.ImageInformationView> findImageByName(String name) {
         return imageRepository.findByName(name);
     }
 
-    public Optional<ImageRepository.ImageInformationView> patchImage(Image image){
-        Optional<Image> optionalImage = imageRepository.findById(image.getId());
+    public Image findFullImageById(long id) {
+        Image image = imageRepository.findById(id).orElseThrow(ImageApiRuntimeException::new);
+        ImageData imageData = image.getImageData();
 
-        if (optionalImage.isEmpty()){
-            throw new ImageApiRuntimeException();
-        }
+        return Image.builder()
+                .id(image.getId())
+                .name(image.getName())
+                .description(image.getDescription())
+                .imageData(ImageData.builder()
+                        .id(imageData.getId())
+                        .fullImage(imageData.getFullImage()).build()
+                ).build();
+    }
 
-        Image managedImage = optionalImage.get();
+    public List<Image> findPage(int pageNumber, int pageSize){
+        Page<Image> imagePage = imageRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        return imagePage.getContent();
+    }
+
+    public Optional<ImageRepository.ImageInformationView> patchImage(Image image) {
+        Image managedImage = imageRepository.findById(image.getId()).orElseThrow(ImageApiRuntimeException::new);
+
         managedImage.setName(image.getName());
         managedImage.setDescription(image.getDescription());
 
@@ -53,18 +72,9 @@ public class ImageService {
         return imageRepository.findByName(image.getName());
     }
 
-    public void deleteImage(long id){
-        Optional<Image> optionalImage = imageRepository.findById(id);
+    public void deleteImage(long id) {
+        Image image = imageRepository.findById(id).orElseThrow(ImageApiRuntimeException::new);
 
-        if (optionalImage.isEmpty()){
-            throw new ImageApiRuntimeException();
-        }
-
-        Image managedImage = optionalImage.get();
-        ImageData imageData = managedImage.getImageData();
-        long imageDataId = imageData.getId();
         imageRepository.deleteById(id);
-        imageDataRepository.deleteById(imageDataId);
-
     }
 }
