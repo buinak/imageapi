@@ -21,9 +21,6 @@ public class ImageControllerIT {
 
     @Autowired
     ImageController imageController;
-
-    @Autowired
-    ImageRepository imageRepository;
     
     @Test
     public void addImage_addsAnImage(){
@@ -39,9 +36,8 @@ public class ImageControllerIT {
         Image image = imageController.addImage("NAME", "DESC").getBody();
         long id = image.getId();
 
-        assertThat(imageRepository.findById(id)).isNotEmpty();
+        assertThat(imageController.findImageByName("NAME").getBody()).isNotNull();
         imageController.deleteImage(id);
-        assertThat(imageRepository.findById(id)).isEmpty();
-
+        assertThat(imageController.findImageByName("NAME").getBody()).isNull();
     }
 }
