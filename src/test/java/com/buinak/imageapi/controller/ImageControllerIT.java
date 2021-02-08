@@ -39,6 +39,7 @@ public class ImageControllerIT {
         Image image = imageController.addImage("NAME", "DESC").getBody();
         long id = image.getId();
 
+        assertThat(imageRepository.findById(id)).isNotEmpty();
         imageController.deleteImage(id);
         assertThat(imageRepository.findById(id)).isEmpty();
 
