@@ -34,10 +34,9 @@ public class ImageControllerIT {
     @Test
     public void deleteImage(){
         Image image = imageController.addImage("NAME", "DESC").getBody();
-        long id = image.getId();
 
         assertThat(imageController.findImageByName("NAME").getBody()).isNotNull();
-        imageController.deleteImage(id);
+        imageController.deleteImage(image.getId());
         assertThat(imageController.findImageByName("NAME").getBody()).isNull();
     }
 }
