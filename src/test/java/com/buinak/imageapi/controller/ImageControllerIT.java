@@ -24,7 +24,7 @@ public class ImageControllerIT {
     
     @Test
     public void addImage_addsAnImage(){
-        imageController.addImage("NAME", "DESC").getBody();
+        Image image = imageController.addImage("NAME", "DESC").getBody();
 
         ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME").getBody();
         assertThat(imageInformationView.getName()).isEqualTo("NAME");

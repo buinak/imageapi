@@ -4,6 +4,7 @@ import com.buinak.imageapi.entity.Image;
 import com.buinak.imageapi.entity.ImageData;
 import com.buinak.imageapi.repository.ImageDataRepository;
 import com.buinak.imageapi.repository.ImageRepository;
+import com.buinak.imageapi.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,33 +16,22 @@ import java.util.Optional;
 @Controller("/image")
 public class ImageController {
 
-    private final ImageRepository imageRepository;
-    private final ImageDataRepository imageDataRepository;
+    private final ImageService imageService;
 
     @Autowired
-    public ImageController(ImageRepository imageRepository, ImageDataRepository imageDataRepository) {
-        this.imageRepository = imageRepository;
-        this.imageDataRepository = imageDataRepository;
+    public ImageController(ImageService imageService) {
+        this.imageService = imageService;
     }
 
     @PostMapping(path = "addImage")
     public ResponseEntity<Image> addImage(@RequestParam(defaultValue = "NAME") String name,
                                           @RequestParam(defaultValue = "DESC") String description){
-        ImageData imageData = ImageData.builder().build();
-        imageDataRepository.saveAndFlush(imageData);
-
-        Image image = Image.builder()
-                .name(name)
-                .description(description)
-                .imageData(imageData)
-                .build();
-
-        return ResponseEntity.ok().body(imageRepository.saveAndFlush(image));
+        return ResponseEntity.ok().body(imageService.addImage(name, description));
     }
 
     @GetMapping(path = "findImageByName")
     public ResponseEntity<ImageRepository.ImageInformationView> findImageByName(@RequestParam String name){
-        Optional<ImageRepository.ImageInformationView> optionalImage = imageRepository.findByName(name);
+        Optional<ImageRepository.ImageInformationView> optionalImage = imageService.findImageByName(name);
 
         if (optionalImage.isPresent()){
             return ResponseEntity.ok().body(optionalImage.get());
@@ -52,34 +42,17 @@ public class ImageController {
 
     @PatchMapping(path = "patchImage")
     public ResponseEntity<ImageRepository.ImageInformationView> patchImage(@RequestBody Image image){
-        Optional<Image> optionalImage = imageRepository.findById(image.getId());
-
-        if (optionalImage.isEmpty()){
-            return ResponseEntity.notFound().build();
+        Optional<ImageRepository.ImageInformationView> optionalImageInformationView = imageService.patchImage(image);
+        if (optionalImageInformationView.isEmpty()){
+            return ResponseEntity.status(500).build();
         }
-
-        Image managedImage = optionalImage.get();
-        managedImage.setName(image.getName());
-        managedImage.setDescription(image.getDescription());
-
-        imageRepository.saveAndFlush(managedImage);
-        return ResponseEntity.ok(imageRepository.findByName(image.getName()).orElseThrow());
+        return ResponseEntity.ok(optionalImageInformationView.get());
     }
 
     @DeleteMapping(path = "deleteImage")
     public ResponseEntity<Long> deleteImage(@RequestParam() long id){
-        Optional<Image> optionalImage = imageRepository.findById(id);
-
-        if (optionalImage.isPresent()){
-            Image managedImage = optionalImage.get();
-            ImageData imageData = managedImage.getImageData();
-            long imageDataId = imageData.getId();
-            imageRepository.deleteById(id);
-            imageDataRepository.deleteById(imageDataId);
-            return new ResponseEntity<>(id, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        imageService.deleteImage(id);
+        return ResponseEntity.ok().build();
     }
 
 
