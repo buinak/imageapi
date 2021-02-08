@@ -20,6 +20,6 @@ public class Image {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "imageDataId", insertable = true, updatable = false, nullable = false)
-    private ImageData imageData;
+    private transient ImageData imageData;
 
 }
