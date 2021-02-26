@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+#upload files
+/resources/images

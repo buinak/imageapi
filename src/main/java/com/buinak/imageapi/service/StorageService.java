@@ -15,17 +15,21 @@ import java.nio.file.StandardCopyOption;
 @Service
 public class StorageService {
 
-    @Value("${app.upload.dir:${user.home}}")
+    @Value("${app.upload.dir:resources/images}")
     public String uploadDir;
 
-    public void uploadFile(MultipartFile file) {
+    public String uploadFile(MultipartFile file) {
+
+        String fileLocation = uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename());
 
         try {
             Path copyLocation = Paths
-                    .get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+                    .get(fileLocation);
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return fileLocation;
     }
 }
