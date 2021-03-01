@@ -11,16 +11,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 @Service
 public class StorageService {
 
-    @Value("${app.upload.dir:resources/images}")
+    @Value("${app.upload.dir:static}")
     public String uploadDir;
 
     public String uploadFile(MultipartFile file) {
 
-        String fileLocation = uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename());
+        String fileLocation = uploadDir + File.separator + StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
 
         try {
             Path copyLocation = Paths

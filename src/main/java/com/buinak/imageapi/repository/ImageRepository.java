@@ -11,5 +11,6 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     interface ImageInformationView {
         String getName();
         String getDescription();
+        String getPath();
     }
 }

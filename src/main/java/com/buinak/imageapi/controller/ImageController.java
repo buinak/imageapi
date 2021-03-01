@@ -1,8 +1,6 @@
 package com.buinak.imageapi.controller;
 
 import com.buinak.imageapi.entity.Image;
-import com.buinak.imageapi.entity.ImageData;
-import com.buinak.imageapi.repository.ImageDataRepository;
 import com.buinak.imageapi.repository.ImageRepository;
 import com.buinak.imageapi.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,41 +9,33 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Optional;
 
 @Controller("/image")
 public class ImageController {
 
     private final ImageRepository imageRepository;
-    private final ImageDataRepository imageDataRepository;
     private final StorageService storageService;
 
     @Autowired
     public ImageController(ImageRepository imageRepository,
-                           ImageDataRepository imageDataRepository,
                            StorageService storageService) {
         this.imageRepository = imageRepository;
-        this.imageDataRepository = imageDataRepository;
         this.storageService = storageService;
     }
 
     @PostMapping(path = "addImage")
     public ResponseEntity<Image> addImage(@RequestParam(defaultValue = "NAME") String name,
                                           @RequestParam(defaultValue = "DESC") String description,
-                                          @RequestParam() MultipartFile file) throws IOException {
-        ImageData imageData = ImageData.builder()
-                //.fullImage(file.getBytes())
-                .build();
-        imageDataRepository.saveAndFlush(imageData);
+                                          @RequestParam() MultipartFile file) {
+
+        String path = storageService.uploadFile(file);
 
         Image image = Image.builder()
                 .name(name)
                 .description(description)
-                .imageData(imageData)
+                .path(path)
                 .build();
-
-        storageService.uploadFile(file);
 
         return ResponseEntity.ok().body(imageRepository.saveAndFlush(image));
     }
@@ -54,11 +44,7 @@ public class ImageController {
     public ResponseEntity<ImageRepository.ImageInformationView> findImageByName(@RequestParam String name){
         Optional<ImageRepository.ImageInformationView> optionalImage = imageRepository.findByName(name);
 
-        if (optionalImage.isPresent()){
-            return ResponseEntity.ok().body(optionalImage.get());
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return optionalImage.map(imageInformationView -> ResponseEntity.ok().body(imageInformationView)).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PatchMapping(path = "patchImage")
