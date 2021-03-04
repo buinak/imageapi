@@ -9,6 +9,7 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     Optional<ImageInformationView> findByName(String name);
 
     interface ImageInformationView {
+        long getId();
         String getName();
         String getDescription();
         String getPath();

@@ -33,4 +33,9 @@ public class StorageService {
 
         return fileLocation;
     }
+
+    public void deleteImage(String path){
+        File fileToDelete = new File(path);
+        fileToDelete.delete();
+    }
 }
