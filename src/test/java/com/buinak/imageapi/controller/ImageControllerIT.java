@@ -1,7 +1,6 @@
 package com.buinak.imageapi.controller;
 
 import com.buinak.imageapi.repository.ImageRepository;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
