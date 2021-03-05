@@ -41,9 +41,8 @@ public class ImageControllerIT {
         MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(testImgPath)));
         imageController.addImage("NAME1", "DESC1", multipartFile).getBody();
 
-        ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME1").getBody();
-        imageController.deleteImage(imageInformationView.getId());
-        assertThat(imageController.findImageByName("NAME1").getBody()).isNull();
+        ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME").getBody();
+        assertThat(imageInformationView.getName()).isEqualTo("NAME");
+        assertThat(imageInformationView.getDescription()).isEqualTo("DESC");
     }
 }
-
