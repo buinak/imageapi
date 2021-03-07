@@ -31,6 +31,13 @@ public class ImageController {
         return ResponseEntity.ok().body(imageService.addImage(name, description, file));
     }
 
+    @GetMapping(path = "findImageById")
+    public ResponseEntity<Image> findImageById(@RequestParam Long id){
+        Optional<Image> optionalImage = imageRepository.findById(id);
+
+        return optionalImage.map(imageInformationView -> ResponseEntity.ok().body(imageInformationView)).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping(path = "findImageByName")
     public ResponseEntity<ImageRepository.ImageInformationView> findImageByName(@RequestParam String name){
         Optional<ImageRepository.ImageInformationView> optionalImage = imageRepository.findByName(name);
