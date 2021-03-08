@@ -1,10 +1,13 @@
 package com.buinak.imageapi.controller;
 
+import com.buinak.imageapi.entity.Image;
 import com.buinak.imageapi.repository.ImageRepository;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,13 +27,17 @@ public class ImageControllerIT {
     @Autowired
     ImageController imageController;
 
+    @Autowired
+    ImageRepository imageRepository;
+
     String testImgPath = "src/test/java/com/buinak/imageapi/controller/testimg.jpeg";
 
 
     @Test
-    public void checkImgValues() throws IOException {
+    public void addImage() throws IOException {
         MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(testImgPath)));
-        imageController.addImage("NAME1", "DESC1", multipartFile).getBody();
+
+        imageController.addImage("NAME1", "DESC1", multipartFile);
 
         ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME1").getBody();
         assertThat(imageInformationView.getName()).isEqualTo("NAME1");
@@ -37,12 +45,29 @@ public class ImageControllerIT {
     }
 
     @Test
+    public void patchImage() throws IOException {
+        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(testImgPath)));
+        ResponseEntity<Image> responseImage = imageController.addImage("NAME2", "DESC2", multipartFile);
+        Image image = responseImage.getBody();
+        image.setDescription("string");
+        image.setName("string");
+
+        imageController.patchImage(image);
+
+        ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("string").getBody();
+        assertThat(imageInformationView.getName()).isEqualTo("string");
+        assertThat(imageInformationView.getDescription()).isEqualTo("string");
+    }
+
+    @Test
     public void deleteImage() throws IOException {
         MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(testImgPath)));
-        imageController.addImage("NAME1", "DESC1", multipartFile).getBody();
+        ResponseEntity<Image> responseImage = imageController.addImage("NAME3", "DESC3", multipartFile);
+        Image image = responseImage.getBody();
+        long id = image.getId();
 
-        ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME").getBody();
-        assertThat(imageInformationView.getName()).isEqualTo("NAME");
-        assertThat(imageInformationView.getDescription()).isEqualTo("DESC");
+        assertThat(imageController.findImageByName("NAME3").getBody()).isNotNull();
+        imageController.deleteImageById(id);
+        assertThat(imageController.findImageByName("NAME3").getBody()).isNull();
     }
 }
