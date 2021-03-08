@@ -59,7 +59,9 @@ public class ImageService {
     }
 
     public void deleteImage(long id) {
-        storageService.deleteImage(id);
+        Image managedImage = imageRepository.findById(id).get();
+        String path = managedImage.getPath();
+        storageService.deleteImage(path);
         imageRepository.deleteById(id);
     }
 }
