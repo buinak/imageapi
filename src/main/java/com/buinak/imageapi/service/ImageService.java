@@ -59,7 +59,7 @@ public class ImageService {
     }
 
     public void deleteImage(long id) {
-        imageRepository.deleteById(id);
+        storageService.deleteImage(id);
         imageRepository.deleteById(id);
     }
 }

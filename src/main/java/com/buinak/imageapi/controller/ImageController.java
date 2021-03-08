@@ -50,8 +50,8 @@ public class ImageController {
         return ResponseEntity.ok(imageService.patchImage(image));
     }
 
-    @DeleteMapping(path = "deleteImage")
-    public ResponseEntity<?> deleteImage(@RequestBody long id){
+    @DeleteMapping(path = "deleteImageById")
+    public ResponseEntity<?> deleteImageById(@RequestParam long id){
         Optional<Image> optionalImage = imageRepository.findById(id);
 
         if (optionalImage.isEmpty()){
