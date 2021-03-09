@@ -3,7 +3,6 @@ package com.buinak.imageapi.controller;
 import com.buinak.imageapi.entity.Image;
 import com.buinak.imageapi.repository.ImageRepository;
 import com.buinak.imageapi.service.ImageService;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

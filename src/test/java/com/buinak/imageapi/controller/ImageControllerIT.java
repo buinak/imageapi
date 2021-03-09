@@ -30,12 +30,12 @@ public class ImageControllerIT {
     @Autowired
     ImageRepository imageRepository;
 
-    String testImgPath = "src/test/java/com/buinak/imageapi/controller/testimg.jpeg";
+    final static String IMG_PATH = "src/test/java/com/buinak/imageapi/controller/testimg.jpeg";
 
 
     @Test
     public void addImage() throws IOException {
-        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(testImgPath)));
+        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(IMG_PATH)));
 
         imageController.addImage("NAME1", "DESC1", multipartFile);
 
@@ -46,7 +46,7 @@ public class ImageControllerIT {
 
     @Test
     public void patchImage() throws IOException {
-        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(testImgPath)));
+        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(IMG_PATH)));
         ResponseEntity<Image> responseImage = imageController.addImage("NAME2", "DESC2", multipartFile);
         Image image = responseImage.getBody();
         image.setDescription("string");
@@ -61,7 +61,7 @@ public class ImageControllerIT {
 
     @Test
     public void deleteImage() throws IOException {
-        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(testImgPath)));
+        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(IMG_PATH)));
         ResponseEntity<Image> responseImage = imageController.addImage("NAME3", "DESC3", multipartFile);
         Image image = responseImage.getBody();
         long id = image.getId();
