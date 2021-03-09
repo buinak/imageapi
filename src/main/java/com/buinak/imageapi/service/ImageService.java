@@ -4,12 +4,9 @@ import com.buinak.imageapi.entity.Image;
 import com.buinak.imageapi.exception.ImageApiRuntimeException;
 import com.buinak.imageapi.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,6 +35,10 @@ public class ImageService {
         return imageRepository.saveAndFlush(image);
     }
 
+    public Optional<Image> findImageById(long id) {
+        return imageRepository.findById(id);
+    }
+
     public Optional<ImageRepository.ImageInformationView> findImageByName(String name) {
         return imageRepository.findByName(name);
     }
@@ -58,10 +59,11 @@ public class ImageService {
         return imageRepository.findByName(image.getName());
     }
 
-    public void deleteImage(long id) {
+    public Image deleteImage(long id) {
         Image managedImage = imageRepository.findById(id).get();
         String path = managedImage.getPath();
         storageService.deleteImage(path);
         imageRepository.deleteById(id);
+        return managedImage;
     }
 }

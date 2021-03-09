@@ -15,12 +15,10 @@ import java.util.Optional;
 @Controller("/image")
 public class ImageController {
 
-    private final ImageRepository imageRepository;
     private final ImageService imageService;
 
     @Autowired
-    public ImageController(ImageRepository imageRepository, ImageService imageService) {
-        this.imageRepository = imageRepository;
+    public ImageController(ImageService imageService) {
         this.imageService = imageService;
     }
 
@@ -33,14 +31,14 @@ public class ImageController {
 
     @GetMapping(path = "findImageById")
     public ResponseEntity<Image> findImageById(@RequestParam Long id){
-        Optional<Image> optionalImage = imageRepository.findById(id);
+        Optional<Image> optionalImage = imageService.findImageById(id);
 
         return optionalImage.map(imageInformationView -> ResponseEntity.ok().body(imageInformationView)).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping(path = "findImageByName")
     public ResponseEntity<ImageRepository.ImageInformationView> findImageByName(@RequestParam String name){
-        Optional<ImageRepository.ImageInformationView> optionalImage = imageRepository.findByName(name);
+        Optional<ImageRepository.ImageInformationView> optionalImage = imageService.findImageByName(name);
 
         return optionalImage.map(imageInformationView -> ResponseEntity.ok().body(imageInformationView)).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -52,13 +50,7 @@ public class ImageController {
 
     @DeleteMapping(path = "deleteImageById")
     public ResponseEntity<?> deleteImageById(@RequestParam long id){
-        Optional<Image> optionalImage = imageRepository.findById(id);
-
-        if (optionalImage.isEmpty()){
-            return new ResponseEntity<>(id, HttpStatus.NOT_FOUND);
-        }
-
-        imageService.deleteImage(id);
-        return new ResponseEntity<>(id, HttpStatus.ACCEPTED);
+        Optional<Image> optionalImage = Optional.ofNullable(imageService.deleteImage(id));
+        return optionalImage.map(imageInformationView -> ResponseEntity.ok().body(imageInformationView)).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
