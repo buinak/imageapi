@@ -3,6 +3,7 @@ package com.buinak.imageapi.service;
 import com.buinak.imageapi.entity.Image;
 import com.buinak.imageapi.exception.ImageApiRuntimeException;
 import com.buinak.imageapi.repository.ImageRepository;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,11 +60,10 @@ public class ImageService {
         return imageRepository.findByName(image.getName());
     }
 
-    public Image deleteImage(long id) {
+    public void deleteImage(long id) {
         Image managedImage = imageRepository.findById(id).get();
         String path = managedImage.getPath();
         storageService.deleteImage(path);
         imageRepository.deleteById(id);
-        return managedImage;
     }
 }
