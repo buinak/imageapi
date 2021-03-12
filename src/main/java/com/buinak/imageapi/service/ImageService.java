@@ -1,67 +1,47 @@
 package com.buinak.imageapi.service;
 
 import com.buinak.imageapi.entity.Image;
-import com.buinak.imageapi.entity.ImageData;
 import com.buinak.imageapi.exception.ImageApiRuntimeException;
-import com.buinak.imageapi.repository.ImageDataRepository;
 import com.buinak.imageapi.repository.ImageRepository;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ImageService {
 
     private final ImageRepository imageRepository;
-    private final ImageDataRepository imageDataRepository;
+    private final StorageService storageService;
+
 
     @Autowired
-    public ImageService(ImageRepository imageRepository, ImageDataRepository imageDataRepository) {
+    public ImageService(ImageRepository imageRepository, StorageService storageService) {
         this.imageRepository = imageRepository;
-        this.imageDataRepository = imageDataRepository;
+        this.storageService = storageService;
     }
 
-    public Image addImage(String name, String description) {
-        ImageData imageData = ImageData.builder().build();
-        imageDataRepository.saveAndFlush(imageData);
+    public Image addImage(String name, String description, MultipartFile file) {
 
-        return imageRepository.saveAndFlush(Image.builder()
+        String path = storageService.uploadFile(file);
+
+        Image image = Image.builder()
                 .name(name)
                 .description(description)
-                .imageData(imageData)
-                .build());
+                .path(path)
+                .build();
+
+        return imageRepository.saveAndFlush(image);
+    }
+
+    public Optional<Image> findImageById(long id) {
+        return imageRepository.findById(id);
     }
 
     public Optional<ImageRepository.ImageInformationView> findImageByName(String name) {
         return imageRepository.findByName(name);
     }
-
-    public Image findFullImageById(long id) {
-        Image image = imageRepository.findById(id).orElseThrow(ImageApiRuntimeException::new);
-        ImageData imageData = image.getImageData();
-
-        return Image.builder()
-                .id(image.getId())
-                .name(image.getName())
-                .description(image.getDescription())
-                .imageData(ImageData.builder()
-                        .id(imageData.getId())
-                        .fullImage(imageData.getFullImage()).build()
-                ).build();
-    }
-
-    public List<Image> findPage(int pageNumber, int pageSize){
-        Page<Image> imagePage = imageRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        return imagePage.getContent();
-    }
-
 
     public Optional<ImageRepository.ImageInformationView> patchImage(Image image) {
         Image managedImage = imageRepository.findById(image.getId()).orElseThrow(ImageApiRuntimeException::new);
@@ -74,8 +54,9 @@ public class ImageService {
     }
 
     public void deleteImage(long id) {
-        Image image = imageRepository.findById(id).orElseThrow(ImageApiRuntimeException::new);
-
+        Image managedImage = imageRepository.findById(id).get();
+        String path = managedImage.getPath();
+        storageService.deleteImage(path);
         imageRepository.deleteById(id);
     }
 }

@@ -1,18 +1,21 @@
 package com.buinak.imageapi.controller;
 
 import com.buinak.imageapi.entity.Image;
-import com.buinak.imageapi.entity.ImageData;
-import com.buinak.imageapi.repository.ImageDataRepository;
 import com.buinak.imageapi.repository.ImageRepository;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Component;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,26 +28,46 @@ public class ImageControllerIT {
     ImageController imageController;
 
     @Autowired
-    ImageDataRepository imageDataRepository;
-    
-    @Test
-    public void addImage_addsAnImage(){
-        Image image = imageController.addImage("NAME", "DESC").getBody();
+    ImageRepository imageRepository;
 
-        ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME").getBody();
-        assertThat(imageInformationView.getName()).isEqualTo("NAME");
-        assertThat(imageInformationView.getDescription()).isEqualTo("DESC");
+    final static String IMG_PATH = "src/test/java/com/buinak/imageapi/controller/testimg.jpeg";
+
+
+    @Test
+    public void addImage() throws IOException {
+        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(IMG_PATH)));
+
+        imageController.addImage("NAME1", "DESC1", multipartFile);
+
+        ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME1").getBody();
+        assertThat(imageInformationView.getName()).isEqualTo("NAME1");
+        assertThat(imageInformationView.getDescription()).isEqualTo("DESC1");
     }
 
     @Test
-    public void deleteImage(){
-        Image image = imageController.addImage("NAME", "DESC").getBody();
-        ImageData imageData = image.getImageData();
+    public void patchImage() throws IOException {
+        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(IMG_PATH)));
+        ResponseEntity<Image> responseImage = imageController.addImage("NAME2", "DESC2", multipartFile);
+        Image image = responseImage.getBody();
+        image.setDescription("string");
+        image.setName("string");
 
-        assertThat(imageController.findImageByName("NAME").getBody()).isNotNull();
-        assertThat(imageDataRepository.existsById(imageData.getId())).isTrue();
-        imageController.deleteImage(image.getId());
-        assertThat(imageController.findImageByName("NAME").getBody()).isNull();
-        assertThat(imageDataRepository.existsById(imageData.getId())).isFalse();
+        imageController.patchImage(image);
+
+        ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("string").getBody();
+        assertThat(imageInformationView.getName()).isEqualTo("string");
+        assertThat(imageInformationView.getDescription()).isEqualTo("string");
+    }
+
+    @Test
+    public void deleteImage() throws IOException {
+        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(IMG_PATH)));
+        ResponseEntity<Image> responseImage = imageController.addImage("NAME3", "DESC3", multipartFile);
+        Image image = responseImage.getBody();
+        long id = image.getId();
+
+        assertThat(imageController.findImageByName("NAME3").getBody()).isNotNull();
+        imageController.deleteImageById(id);
+        assertThat(imageController.findImageByName("NAME3").getBody()).isNull();
     }
 }
