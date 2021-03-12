@@ -20,7 +20,8 @@ public class StorageService {
 
     public String uploadFile(MultipartFile file) {
 
-        String fileLocation = uploadDir + File.separator + StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        String fileLocation = uploadDir + File.separator + fileName;
 
         try {
             Path copyLocation = Paths
@@ -30,7 +31,7 @@ public class StorageService {
             e.printStackTrace();
         }
 
-        return fileLocation;
+        return fileName;
     }
 
     public void deleteImage(String path){
