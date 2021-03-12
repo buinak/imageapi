@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +43,19 @@ public class ImageControllerIT {
         ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME1").getBody();
         assertThat(imageInformationView.getName()).isEqualTo("NAME1");
         assertThat(imageInformationView.getDescription()).isEqualTo("DESC1");
+    }
+
+    @Test
+    public void listImages() throws IOException {
+        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(new File(IMG_PATH)));
+        MultipartFile multipartFile2 = new MockMultipartFile("testimg2.jpeg", new FileInputStream(new File(IMG_PATH)));
+        imageController.addImage("NAME1", "DESC1", multipartFile);
+        imageController.addImage("NAME2", "DESC2", multipartFile2);
+
+        List<String> images = imageController.getImageLinks().getBody();
+        assertThat(images.size()).isEqualTo(2);
+        assertThat(images.get(1)).isEqualTo("testimg.jpeg");
+        assertThat(images.get(2)).isEqualTo("testimg2.jpeg");
     }
 
     @Test
