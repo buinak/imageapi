@@ -40,9 +40,9 @@ public class ImageControllerIT {
 
         imageController.addImage("NAME1", "DESC1", multipartFile);
 
-        ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("NAME1").getBody();
-        assertThat(imageInformationView.getName()).isEqualTo("NAME1");
-        assertThat(imageInformationView.getDescription()).isEqualTo("DESC1");
+        Image image= imageController.findImageByName("NAME1").getBody();
+        assertThat(image.getName()).isEqualTo("NAME1");
+        assertThat(image.getDescription()).isEqualTo("DESC1");
     }
 
     @Test
@@ -68,9 +68,9 @@ public class ImageControllerIT {
 
         imageController.patchImage(image);
 
-        ImageRepository.ImageInformationView imageInformationView = imageController.findImageByName("string").getBody();
-        assertThat(imageInformationView.getName()).isEqualTo("string");
-        assertThat(imageInformationView.getDescription()).isEqualTo("string");
+        Image image2 = imageController.findImageByName("string").getBody();
+        assertThat(image2.getName()).isEqualTo("string");
+        assertThat(image2.getDescription()).isEqualTo("string");
     }
 
     @Test
