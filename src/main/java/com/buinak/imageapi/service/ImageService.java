@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
@@ -35,15 +37,21 @@ public class ImageService {
         return imageRepository.saveAndFlush(image);
     }
 
+    public List<String> listImageUrls() {
+        return imageRepository.findAll().stream()
+                .map(image -> image.getPath())
+                .collect(Collectors.toList());
+    }
+
     public Optional<Image> findImageById(long id) {
         return imageRepository.findById(id);
     }
 
-    public Optional<ImageRepository.ImageInformationView> findImageByName(String name) {
+    public Optional<Image> findImageByName(String name) {
         return imageRepository.findByName(name);
     }
 
-    public Optional<ImageRepository.ImageInformationView> patchImage(Image image) {
+    public Optional<Image> patchImage(Image image) {
         Image managedImage = imageRepository.findById(image.getId()).orElseThrow(ImageApiRuntimeException::new);
 
         managedImage.setName(image.getName());
