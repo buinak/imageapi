@@ -6,6 +6,7 @@ import com.buinak.imageapi.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,8 +39,10 @@ public class ImageService {
     }
 
     public List<String> listImageUrls() {
+        final String baseUrl =
+                ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         return imageRepository.findAll().stream()
-                .map(image -> image.getPath())
+                .map(image -> baseUrl + image.getPath())
                 .collect(Collectors.toList());
     }
 
