@@ -2,6 +2,7 @@ package com.buinak.imageapi.controller;
 
 import com.buinak.imageapi.entity.Image;
 import com.buinak.imageapi.repository.ImageRepository;
+import com.buinak.imageapi.service.ImageService;
 import com.buinak.imageapi.service.StorageService;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
@@ -32,41 +33,47 @@ public class ImageControllerIT {
     ImageRepository imageRepository;
 
     @Autowired
-    StorageService storageService;
-
-    final static String IMG_PATH = "src/test/java/com/buinak/imageapi/controller/testimg.jpeg";
+    ImageService imageService;
 
 
     @Test
-    public void addImage() throws IOException {
-        MultipartFile multipartFile = new MockMultipartFile("testimg.jpeg", new FileInputStream(IMG_PATH));
+    public void addImage() {
+        MockMultipartFile multipartFile = new MockMultipartFile("data", "testimg.jpeg", "text/plain", "some xml".getBytes());
 
         imageController.addImage("NAME1", "DESC1", multipartFile);
 
         Image image= imageController.findImageByName("NAME1").getBody();
         assertThat(image.getName()).isEqualTo("NAME1");
         assertThat(image.getDescription()).isEqualTo("DESC1");
+
+        imageService.deleteImage(image.getId());
     }
 
     @Test
-    public void listImages() throws IOException {
+    public void listImages() {
+        //setup
         MockMultipartFile firstFile = new MockMultipartFile("data", "testimg.jpeg", "text/plain", "some xml".getBytes());
-        imageController.addImage("NAME1", "DESC1", firstFile);
+        MockMultipartFile secondFile = new MockMultipartFile("data2", "testimg2.jpeg", "text/plain", "some xml".getBytes());
 
-        MockMultipartFile secondFile = new MockMultipartFile("data", "testimg.jpeg", "text/plain", "some xml".getBytes());
-        imageController.addImage("NAME2", "DESC2", secondFile);
+        //action
+        imageController.addImage("list", "list", firstFile);
+        imageController.addImage("list2", "list2", secondFile);
 
+        //assert
         List<String> images = imageController.getImageLinks().getBody();
-        System.out.println("-----------------------------------------------");
-        System.out.println(imageRepository.findByName("NAME1"));
-        System.out.println(images);
         assertThat(images.size()).isEqualTo(2);
         assertThat(images.get(0)).isEqualTo("testimg.jpeg");
         assertThat(images.get(1)).isEqualTo("testimg2.jpeg");
+
+        Image image1 = imageController.findImageByName("list").getBody();
+        Image image2 = imageController.findImageByName("list2").getBody();
+        imageService.deleteImage(image1.getId());
+        imageService.deleteImage(image2.getId());
+
     }
 
     @Test
-    public void patchImage() throws IOException {
+    public void patchImage() {
         MockMultipartFile multipartFile = new MockMultipartFile("data", "testimg.jpeg", "text/plain", "some xml".getBytes());
         ResponseEntity<Image> responseImage = imageController.addImage("NAME2", "DESC2", multipartFile);
         Image image = responseImage.getBody();
@@ -79,11 +86,11 @@ public class ImageControllerIT {
         assertThat(image2.getName()).isEqualTo("string");
         assertThat(image2.getDescription()).isEqualTo("string");
 
-
+        imageService.deleteImage(image2.getId());
     }
 
     @Test
-    public void deleteImage() throws IOException {
+    public void deleteImage() {
         MockMultipartFile multipartFile = new MockMultipartFile("data", "testimg.jpeg", "text/plain", "some xml".getBytes());
         ResponseEntity<Image> responseImage = imageController.addImage("NAME3", "DESC3", multipartFile);
         Image image = responseImage.getBody();
