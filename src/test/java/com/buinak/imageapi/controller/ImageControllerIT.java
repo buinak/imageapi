@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -52,6 +54,7 @@ public class ImageControllerIT {
     @Test
     public void listImages() {
         //setup
+        final String BASE_URL = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         MockMultipartFile firstFile = new MockMultipartFile("data", "testimg.jpeg", "text/plain", "some xml".getBytes());
         MockMultipartFile secondFile = new MockMultipartFile("data2", "testimg2.jpeg", "text/plain", "some xml".getBytes());
 
@@ -62,8 +65,8 @@ public class ImageControllerIT {
         //assert
         List<String> images = imageController.getImageLinks().getBody();
         assertThat(images.size()).isEqualTo(2);
-        assertThat(images.get(0)).isEqualTo("testimg.jpeg");
-        assertThat(images.get(1)).isEqualTo("testimg2.jpeg");
+        assertThat(images.get(0)).isEqualTo(BASE_URL + File.separator + "testimg.jpeg");
+        assertThat(images.get(1)).isEqualTo(BASE_URL + File.separator + "testimg2.jpeg");
 
         Image image1 = imageController.findImageByName("list").getBody();
         Image image2 = imageController.findImageByName("list2").getBody();

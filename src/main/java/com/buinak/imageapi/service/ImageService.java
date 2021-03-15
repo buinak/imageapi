@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,10 +40,10 @@ public class ImageService {
     }
 
     public List<String> listImageUrls() {
-        final String baseUrl =
+        final String BASE_URL =
                 ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         return imageRepository.findAll().stream()
-                .map(image -> baseUrl + image.getPath())
+                .map(image -> BASE_URL + File.separator + image.getPath())
                 .collect(Collectors.toList());
     }
 
