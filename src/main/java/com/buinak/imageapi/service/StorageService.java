@@ -35,7 +35,7 @@ public class StorageService {
     }
 
     public void deleteImage(String path){
-        File fileToDelete = new File(path);
+        File fileToDelete = new File(uploadDir + File.separator + path);
         fileToDelete.delete();
     }
 }
