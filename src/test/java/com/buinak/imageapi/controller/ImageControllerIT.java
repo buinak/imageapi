@@ -4,6 +4,7 @@ import com.buinak.imageapi.entity.Image;
 import com.buinak.imageapi.repository.ImageRepository;
 import com.buinak.imageapi.service.ImageService;
 import com.buinak.imageapi.service.StorageService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -47,14 +49,12 @@ public class ImageControllerIT {
         Image image= imageController.findImageByName("NAME1").getBody();
         assertThat(image.getName()).isEqualTo("NAME1");
         assertThat(image.getDescription()).isEqualTo("DESC1");
-
-        imageService.deleteImage(image.getId());
     }
 
     @Test
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     public void listImages() {
         //setup
-        final String BASE_URL = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         MockMultipartFile firstFile = new MockMultipartFile("data", "testimg.jpeg", "text/plain", "some xml".getBytes());
         MockMultipartFile secondFile = new MockMultipartFile("data2", "testimg2.jpeg", "text/plain", "some xml".getBytes());
 
@@ -65,13 +65,8 @@ public class ImageControllerIT {
         //assert
         List<String> images = imageController.getImageLinks().getBody();
         assertThat(images.size()).isEqualTo(2);
-        assertThat(images.get(0)).isEqualTo(BASE_URL + File.separator + "testimg.jpeg");
-        assertThat(images.get(1)).isEqualTo(BASE_URL + File.separator + "testimg2.jpeg");
-
-        Image image1 = imageController.findImageByName("list").getBody();
-        Image image2 = imageController.findImageByName("list2").getBody();
-        imageService.deleteImage(image1.getId());
-        imageService.deleteImage(image2.getId());
+        assertThat(images.get(0)).isEqualTo(imageService.BASE_URL + File.separator + "testimg.jpeg");
+        assertThat(images.get(1)).isEqualTo(imageService.BASE_URL + File.separator + "testimg2.jpeg");
 
     }
 
@@ -88,8 +83,6 @@ public class ImageControllerIT {
         Image image2 = imageController.findImageByName("string").getBody();
         assertThat(image2.getName()).isEqualTo("string");
         assertThat(image2.getDescription()).isEqualTo("string");
-
-        imageService.deleteImage(image2.getId());
     }
 
     @Test
