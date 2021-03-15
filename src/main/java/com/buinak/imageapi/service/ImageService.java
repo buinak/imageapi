@@ -10,7 +10,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,22 +46,22 @@ public class ImageService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<Image> findImageById(long id) {
-        return imageRepository.findById(id);
+    public Image findImageById(long id) {
+        return imageRepository.findById(id).get();
     }
 
-    public Optional<Image> findImageByName(String name) {
-        return imageRepository.findByName(name);
+    public Image findImageByName(String name) {
+        return imageRepository.findByName(name).get();
     }
 
-    public Optional<Image> patchImage(Image image) {
-        Image managedImage = imageRepository.findById(image.getId()).orElseThrow(ImageApiRuntimeException::new);
+    public Image patchImage(Long id, Image image) {
+        Image managedImage = imageRepository.findById(id).orElseThrow(ImageApiRuntimeException::new);
 
         managedImage.setName(image.getName());
         managedImage.setDescription(image.getDescription());
 
         imageRepository.saveAndFlush(managedImage);
-        return imageRepository.findByName(image.getName());
+        return imageRepository.findByName(image.getName()).get();
     }
 
     public void deleteImage(long id) {

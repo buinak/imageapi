@@ -3,11 +3,7 @@ package com.buinak.imageapi.controller;
 import com.buinak.imageapi.entity.Image;
 import com.buinak.imageapi.repository.ImageRepository;
 import com.buinak.imageapi.service.ImageService;
-import com.buinak.imageapi.service.StorageService;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,12 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,7 +39,7 @@ public class ImageControllerIT {
 
         imageController.addImage("NAME1", "DESC1", multipartFile);
 
-        Image image= imageController.findImageByName("NAME1").getBody();
+        Image image= imageService.findImageByName("NAME1");
         assertThat(image.getName()).isEqualTo("NAME1");
         assertThat(image.getDescription()).isEqualTo("DESC1");
     }
@@ -55,6 +48,8 @@ public class ImageControllerIT {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     public void listImages() {
         //setup
+        final String BASE_URL =
+                ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
         MockMultipartFile firstFile = new MockMultipartFile("data", "testimg.jpeg", "text/plain", "some xml".getBytes());
         MockMultipartFile secondFile = new MockMultipartFile("data2", "testimg2.jpeg", "text/plain", "some xml".getBytes());
 
@@ -65,8 +60,8 @@ public class ImageControllerIT {
         //assert
         List<String> images = imageController.getImageLinks().getBody();
         assertThat(images.size()).isEqualTo(2);
-        assertThat(images.get(0)).isEqualTo(imageService.BASE_URL + File.separator + "testimg.jpeg");
-        assertThat(images.get(1)).isEqualTo(imageService.BASE_URL + File.separator + "testimg2.jpeg");
+        assertThat(images.get(0)).isEqualTo(BASE_URL + File.separator + "testimg.jpeg");
+        assertThat(images.get(1)).isEqualTo(BASE_URL + File.separator + "testimg2.jpeg");
 
     }
 
@@ -78,9 +73,9 @@ public class ImageControllerIT {
         image.setDescription("string");
         image.setName("string");
 
-        imageController.patchImage(image);
+        imageController.patchImage(image.getId(), image);
 
-        Image image2 = imageController.findImageByName("string").getBody();
+        Image image2 = imageService.findImageByName("string");
         assertThat(image2.getName()).isEqualTo("string");
         assertThat(image2.getDescription()).isEqualTo("string");
     }
@@ -92,8 +87,8 @@ public class ImageControllerIT {
         Image image = responseImage.getBody();
         long id = image.getId();
 
-        assertThat(imageController.findImageByName("NAME3").getBody()).isNotNull();
+        assertThat(imageService.findImageByName("NAME3")).isNotNull();
         imageController.deleteImageById(id);
-        assertThat(imageController.findImageByName("NAME3").getBody()).isNull();
+        assertThat(imageService.findImageByName("NAME3")).isNull();
     }
 }
