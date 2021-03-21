@@ -6,8 +6,11 @@ import com.buinak.imageapi.repository.ImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.util.Optional;
+import java.io.File;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
@@ -35,22 +38,30 @@ public class ImageService {
         return imageRepository.saveAndFlush(image);
     }
 
-    public Optional<Image> findImageById(long id) {
-        return imageRepository.findById(id);
+    public List<String> listImageUrls() {
+        final String BASE_URL =
+                ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        return imageRepository.findAll().stream()
+                .map(image -> BASE_URL + File.separator + image.getPath())
+                .collect(Collectors.toList());
     }
 
-    public Optional<ImageRepository.ImageInformationView> findImageByName(String name) {
-        return imageRepository.findByName(name);
+    public Image findImageById(long id) {
+        return imageRepository.findById(id).get();
     }
 
-    public Optional<ImageRepository.ImageInformationView> patchImage(Image image) {
-        Image managedImage = imageRepository.findById(image.getId()).orElseThrow(ImageApiRuntimeException::new);
+    public Image findImageByName(String name) {
+        return imageRepository.findByName(name).get();
+    }
+
+    public Image patchImage(Long id, Image image) {
+        Image managedImage = imageRepository.findById(id).orElseThrow(ImageApiRuntimeException::new);
 
         managedImage.setName(image.getName());
         managedImage.setDescription(image.getDescription());
 
         imageRepository.saveAndFlush(managedImage);
-        return imageRepository.findByName(image.getName());
+        return imageRepository.findByName(image.getName()).get();
     }
 
     public void deleteImage(long id) {
