@@ -37,7 +37,6 @@ public class ImageController {
         return ResponseEntity.ok(imageService.findImageById(id));
     }
 
-
     @PatchMapping(path = "/images/{id}")
     public ResponseEntity<Image> patchImage(@PathVariable Long id, @RequestBody Image image){
         return ResponseEntity.ok(imageService.patchImage(id, image));
