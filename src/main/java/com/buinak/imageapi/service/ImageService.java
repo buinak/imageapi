@@ -51,7 +51,11 @@ public class ImageService {
     }
 
     public Image findImageByName(String name) {
-        return imageRepository.findByName(name).get();
+        try {
+            return imageRepository.findByName(name).get();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public Image patchImage(Long id, Image image) {
